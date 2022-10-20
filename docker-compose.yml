@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+
+  db:
+    image: mysql:5.7
+    volumes:
+      - db_data:/var/lib/mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: testdb
+      MYSQL_USER: user
+      MYSQL_PASSWORD: user
+
+  phpmyadmin:
+    image: phpmyadmin
+    restart: always
+    ports:
+      - 8081:80
+    environment:
+      - PMA_ARBITRARY=1
+
+  server:
+    image: node:latest
+    volumes:
+      - ./app:/app
+    command: node /app/server.js
+    ports:
+      - 8080:8080
+    depends_on:
+      - db
+
+  front:
+    image: node:latest
+    volumes:
+      - ./vue_project_test:/vue_project_test
+    working_dir: /vue_project_test
+    command: npm run dev
+    ports:
+      - 3000:3000
+    depends_on:
+      - db
+
+volumes:
+  db_data:
